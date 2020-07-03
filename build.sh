@@ -11,7 +11,6 @@ CFFI_VERSION="$(awk -F '==' '/cffi/ { print $2 }' requirements.txt)"
 # check out source code
 rm -rf cffi
 hg clone --update "v${CFFI_VERSION}" https://foss.heptapod.net/pypy/cffi
-#hg update "v${CFFI_VERSION}"
 
 # build
 cd cffi || exit
