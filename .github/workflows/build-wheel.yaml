@@ -18,17 +18,18 @@ jobs:
         uses: actions/checkout@v2
       - name: Run build script in Alpine container
         run: docker-compose up build
-      - name: List build artifacts
-        run: ls -hl ${{ github.workspace }}/${{ github.event.repository.name }}/dist
-      - name: Show sha256 of build artifacts
-        run: shasum -a 256 ${{ github.workspace }}/${{ github.event.repository.name }}/dist/*
-      - name: Upload wheel as release asset
+      - name: Get file name of asset
+        id: asset
+        run: echo "::set-output name=filename::$(ls *.whl)"
+      - name: Show sha256 of asset
+        run: shasum -a 256 ${{ github.workspace }}/${{ steps.asset.outputs.filename }}
+      - name: Upload asset to release
         if: github.event_name == 'release'
         uses: actions/upload-release-asset@v1
         env:
           GITHUB_TOKEN: ${{ github.token }}
         with:
           asset_content_type: application/octet-stream
-          asset_path: ${{ github.workspace }}/${{ github.event.repository.name }}/dist/${{ github.event.repository.name }}-${{ github.event.release.tag_name }}-cp38-cp38-linux_x86_64.whl
-          asset_name: ${{ github.event.repository.name }}-${{ github.event.release.tag_name }}-cp38-cp38-linux_x86_64.whl
+          asset_path: ${{ github.workspace }}/${{ steps.asset.outputs.filename }}
+          asset_name: ${{ steps.asset.outputs.filename }}
           upload_url: ${{ github.event.release.upload_url }}
